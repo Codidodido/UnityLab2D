@@ -13,11 +13,11 @@ public class Character : MonoBehaviour
     [SerializeField] private float characterJumpForce;
     [SerializeField] private bool characterIsRunning;
     
-    private Animator _animation;
+    private Animator _animator;
     
     void Start()
     {
-        _animation = GetComponent<Animator>();
+        _animator = GetComponent<Animator>();
         characterIsRunning = false;
     }
 
@@ -90,11 +90,11 @@ public class Character : MonoBehaviour
     {
         if (directionForce != 0 && !CheckAnimation("running"))
         {
-            _animation.SetBool("isWalking",true);
+            _animator.SetBool("isWalking",true);
         }
         else
         {
-            _animation.SetBool("isWalking", false);
+            _animator.SetBool("isWalking", false);
         }
     }
 
@@ -102,11 +102,11 @@ public class Character : MonoBehaviour
     {
         if(characterIsRunning && directionForce!=0)
         {
-            _animation.SetBool("running",true);
+            _animator.SetBool("running",true);
         }
         else
         {
-            _animation.SetBool("running",false);
+            _animator.SetBool("running",false);
         }
     }
     void CharacterAttack()
@@ -134,7 +134,7 @@ public class Character : MonoBehaviour
         {
             try
             {
-                _animation.SetTrigger(name);
+                _animator.SetTrigger(name);
             }
             catch (Exception e)
             {
@@ -142,7 +142,7 @@ public class Character : MonoBehaviour
             }
             characterDamage = damage;
         }
-        else
+        else if(Input.GetKeyUp(keyCode))
         {
             characterDamage = 0;
         }
@@ -153,12 +153,15 @@ public class Character : MonoBehaviour
     
     bool CheckAnimation(string animationName)
     {
-        if (_animation.GetCurrentAnimatorStateInfo(0).IsName(animationName) &&
-            _animation.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f)
+        if (_animator.GetCurrentAnimatorStateInfo(0).IsName(animationName) &&
+            _animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f)
             return true;
         else
             return false;
     }
 
-    
+    public float GetCharacterDamage()
+    {
+        return characterDamage;
+    }
 }
