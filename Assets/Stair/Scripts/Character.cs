@@ -20,7 +20,7 @@ public class Character : MonoBehaviour
     void Update()
     {
         CharacterMovement();
-       
+        CharacterAttack();
     }
 
     void CharacterMovement()
@@ -36,9 +36,13 @@ public class Character : MonoBehaviour
         RunCharacter(horizontalAxis);
     }
 
+    void CharacterAttack()
+    {
+        KickAttack1();
+    }
     private void PlayMoveAnimation(float directionForce)
     {
-        if (directionForce != 0)
+        if (directionForce != 0 && !CheckAnimation("kick1"))
         {
             _animation.SetBool("isWalking",true);
         }
@@ -74,5 +78,19 @@ public class Character : MonoBehaviour
             moveSpeed -= extraSpeed;
             isRunning = false;
         }
+    }
+
+    private void KickAttack1()
+    {
+        if (Input.GetKeyDown(KeyCode.J) && !CheckAnimation("running") && !CheckAnimation("isWalking"))
+        {
+            _animation.SetTrigger("kick1");
+        }
+    }
+
+    bool CheckAnimation(string animationName)
+    {
+        var isAnimationRun = _animation.GetCurrentAnimatorStateInfo(0).IsName(animationName);
+        return isAnimationRun;
     }
 }
