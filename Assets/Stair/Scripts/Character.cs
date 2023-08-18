@@ -25,20 +25,50 @@ public class Character : MonoBehaviour
 
     void CharacterMovement()
     {
-        float horizontalAxis = Input.GetAxis("Horizontal");
+        float horizontalAxis = Input.GetAxisRaw("Horizontal");
 
+        
+        WalkCharacter(horizontalAxis);
+        FlipCharacter(horizontalAxis);
+        RunCharacter(horizontalAxis);
+        
+        
+        PlayMoveAnimation(horizontalAxis);
+        
+    }
+    
+    
+    private void WalkCharacter(float directionForce)
+    {
         Vector3 direction = Vector3.zero;
-        direction.x = horizontalAxis;
+        direction.x = directionForce;
         
         Vector3 translate = direction * (moveSpeed * Time.deltaTime);
         transform.Translate(translate);
-        PlayMoveAnimation(horizontalAxis);
-        RunCharacter(horizontalAxis);
+    }
+    
+    private void FlipCharacter(float directionForce)
+    {
+        if (directionForce > 0 || directionForce < 0)
+        {
+            transform.localScale = new Vector2(directionForce/2f,0.5f);    
+        }
     }
 
-    void CharacterAttack()
+    private void RunCharacter(float directionForce)
     {
-        KickAttack1();
+        PlayRunAnimation(directionForce);
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            moveSpeed += extraSpeed;
+            isRunning = true;
+            
+
+        }else if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            moveSpeed -= extraSpeed;
+            isRunning = false;
+        }
     }
     private void PlayMoveAnimation(float directionForce)
     {
@@ -63,22 +93,11 @@ public class Character : MonoBehaviour
             _animation.SetBool("running",false);
         }
     }
-    
-    private void RunCharacter(float directionForce)
+    void CharacterAttack()
     {
-        PlayRunAnimation(directionForce);
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            moveSpeed += extraSpeed;
-            isRunning = true;
-            
-
-        }else if (Input.GetKeyUp(KeyCode.LeftShift))
-        {
-            moveSpeed -= extraSpeed;
-            isRunning = false;
-        }
+        KickAttack1();
     }
+    
 
     private void KickAttack1()
     {
@@ -93,4 +112,6 @@ public class Character : MonoBehaviour
         var isAnimationRun = _animation.GetCurrentAnimatorStateInfo(0).IsName(animationName);
         return isAnimationRun;
     }
+
+    
 }
