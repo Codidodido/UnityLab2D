@@ -96,17 +96,25 @@ public class Character : MonoBehaviour
     void CharacterAttack()
     {
         KickAttack1();
+        KickAttack2();
     }
     
 
     private void KickAttack1()
     {
-        if (Input.GetKeyDown(KeyCode.J) && !CheckAnimation("running") && !CheckAnimation("isWalking"))
+        if (Input.GetKeyDown(KeyCode.J) && !isRunning)
         {
             _animation.SetTrigger("kick1");
         }
     }
 
+    private void KickAttack2()
+    {
+        if (Input.GetKeyDown(KeyCode.K) && !isRunning)
+        {
+            _animation.SetTrigger("kick2");
+        }
+    }
     bool CheckAnimation(string animationName)
     {
         var isAnimationRun = _animation.GetCurrentAnimatorStateInfo(0).IsName(animationName);
