@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,14 +7,18 @@ using UnityEngine.Serialization;
 public class Character : MonoBehaviour
 {
     // Start is called before the first frame update
-    [SerializeField] private float moveSpeed;
-    [SerializeField] private float extraSpeed;
-    [SerializeField] private bool isRunning;
+    [SerializeField] private float characterDamage;
+    [SerializeField] private float characterMoveSpeed;
+    [SerializeField] private float characterExtraSpeed;
+    [SerializeField] private float characterJumpForce;
+    [SerializeField] private bool characterIsRunning;
+    
     private Animator _animation;
+    
     void Start()
     {
         _animation = GetComponent<Animator>();
-        isRunning = false;
+        characterIsRunning = false;
     }
 
     // Update is called once per frame
@@ -31,7 +36,7 @@ public class Character : MonoBehaviour
         WalkCharacter(horizontalAxis);
         FlipCharacter(horizontalAxis);
         RunCharacter(horizontalAxis);
-        
+        JumpCharacter(characterJumpForce);
         
         PlayMoveAnimation(horizontalAxis);
         
@@ -43,8 +48,19 @@ public class Character : MonoBehaviour
         Vector3 direction = Vector3.zero;
         direction.x = directionForce;
         
-        Vector3 translate = direction * (moveSpeed * Time.deltaTime);
+        Vector3 translate = direction * (characterMoveSpeed * Time.deltaTime);
         transform.Translate(translate);
+    }
+
+    private void JumpCharacter(float jumpForce)
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Vector2 characterVelocity = GetComponent<Rigidbody2D>().velocity;
+            characterVelocity.y = jumpForce;
+            GetComponent<Rigidbody2D>().velocity = characterVelocity;    
+        }
+        
     }
     
     private void FlipCharacter(float directionForce)
@@ -60,19 +76,19 @@ public class Character : MonoBehaviour
         PlayRunAnimation(directionForce);
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            moveSpeed += extraSpeed;
-            isRunning = true;
+            characterMoveSpeed += characterExtraSpeed;
+            characterIsRunning = true;
             
 
         }else if (Input.GetKeyUp(KeyCode.LeftShift))
         {
-            moveSpeed -= extraSpeed;
-            isRunning = false;
+            characterMoveSpeed -= characterExtraSpeed;
+            characterIsRunning = false;
         }
     }
     private void PlayMoveAnimation(float directionForce)
     {
-        if (directionForce != 0 && !CheckAnimation("kick1"))
+        if (directionForce != 0 && !CheckAnimation("running"))
         {
             _animation.SetBool("isWalking",true);
         }
@@ -84,7 +100,7 @@ public class Character : MonoBehaviour
 
     private void PlayRunAnimation(float directionForce)
     {
-        if(isRunning && directionForce!=0)
+        if(characterIsRunning && directionForce!=0)
         {
             _animation.SetBool("running",true);
         }
@@ -102,23 +118,41 @@ public class Character : MonoBehaviour
 
     private void KickAttack1()
     {
-        if (Input.GetKeyDown(KeyCode.J) && !isRunning)
-        {
-            _animation.SetTrigger("kick1");
-        }
+        DoAttack(KeyCode.J,10f,"kick1");
     }
 
     private void KickAttack2()
     {
-        if (Input.GetKeyDown(KeyCode.K) && !isRunning)
-        {
-            _animation.SetTrigger("kick2");
-        }
+        
+        DoAttack(KeyCode.K,25f,"kick2");
+        
     }
+
+    void DoAttack(KeyCode keyCode, float damage,string name)
+    {
+        if (Input.GetKeyDown(keyCode) && !characterIsRunning)
+        {
+            try
+            {
+                _animation.SetTrigger(name);
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Animation Doesn't exist");
+            }
+            characterDamage = damage;
+        }
+
+        
+    }
+    
     bool CheckAnimation(string animationName)
     {
-        var isAnimationRun = _animation.GetCurrentAnimatorStateInfo(0).IsName(animationName);
-        return isAnimationRun;
+        if (_animation.GetCurrentAnimatorStateInfo(0).IsName(animationName) &&
+            _animation.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f)
+            return true;
+        else
+            return false;
     }
 
     
