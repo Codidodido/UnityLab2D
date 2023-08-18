@@ -142,6 +142,11 @@ public class Character : MonoBehaviour
             }
             characterDamage = damage;
         }
+        else
+        {
+            characterDamage = 0;
+        }
+        
 
         
     }
