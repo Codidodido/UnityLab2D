@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.XR;
 
 public class Character : MonoBehaviour
 {
@@ -11,14 +14,14 @@ public class Character : MonoBehaviour
     [SerializeField] private float characterMoveSpeed;
     [SerializeField] private float characterExtraSpeed;
     [SerializeField] private float characterJumpForce;
-    [SerializeField] private bool characterIsRunning;
-    
+    private bool _characterIsRunning;
+    private bool _characterIsAttacking;
     private Animator _animator;
     
     void Start()
     {
         _animator = GetComponent<Animator>();
-        characterIsRunning = false;
+        _characterIsRunning = false;
     }
 
     // Update is called once per frame
@@ -77,18 +80,18 @@ public class Character : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             characterMoveSpeed += characterExtraSpeed;
-            characterIsRunning = true;
+            _characterIsRunning = true;
             
 
         }else if (Input.GetKeyUp(KeyCode.LeftShift))
         {
             characterMoveSpeed -= characterExtraSpeed;
-            characterIsRunning = false;
+            _characterIsRunning = false;
         }
     }
     private void PlayMoveAnimation(float directionForce)
     {
-        if (directionForce != 0 && !CheckAnimation("running"))
+        if (directionForce != 0 && !_characterIsAttacking )
         {
             _animator.SetBool("isWalking",true);
         }
@@ -100,7 +103,7 @@ public class Character : MonoBehaviour
 
     private void PlayRunAnimation(float directionForce)
     {
-        if(characterIsRunning && directionForce!=0)
+        if(_characterIsRunning && directionForce!=0)
         {
             _animator.SetBool("running",true);
         }
@@ -111,6 +114,7 @@ public class Character : MonoBehaviour
     }
     void CharacterAttack()
     {
+        
         KickAttack1();
         KickAttack2();
     }
@@ -118,19 +122,26 @@ public class Character : MonoBehaviour
 
     private void KickAttack1()
     {
-        DoAttack(KeyCode.J,10f,"kick1");
+        if(Input.GetKeyDown(KeyCode.J))
+        {
+            DoAttack(10f,"kick1");    
+        }
+        
     }
 
     private void KickAttack2()
     {
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            DoAttack(25f,"kick2");    
+        }
         
-        DoAttack(KeyCode.K,25f,"kick2");
         
     }
 
-    void DoAttack(KeyCode keyCode, float damage,string name)
+    void DoAttack(float damage,string name)
     {
-        if (Input.GetKeyDown(keyCode) && !characterIsRunning)
+        if (!_characterIsRunning && !CheckAnimationBool("isWalking"))
         {
             try
             {
@@ -140,26 +151,33 @@ public class Character : MonoBehaviour
             {
                 Debug.Log("Animation Doesn't exist");
             }
+
+            _characterIsAttacking = true;
             characterDamage = damage;
         }
-        else if(Input.GetKeyUp(keyCode))
-        {
-            characterDamage = 0;
-        }
-        
-
-        
     }
     
     bool CheckAnimation(string animationName)
     {
         if (_animator.GetCurrentAnimatorStateInfo(0).IsName(animationName) &&
             _animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f)
+            
             return true;
         else
             return false;
     }
 
+    bool CheckAnimationBool(string animationName)
+    {
+        return _animator.GetBool(animationName);
+    }
+
+    string GetCurrentAnimationName()
+    {
+        string animationName =_animator.GetCurrentAnimatorClipInfo(0)[0].clip.name;
+        Debug.Log(animationName);
+        return animationName;
+    }
     public float GetCharacterDamage()
     {
         return characterDamage;
