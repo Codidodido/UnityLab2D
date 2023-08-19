@@ -15,7 +15,7 @@ public class Character : MonoBehaviour
     [SerializeField] private float characterExtraSpeed;
     [SerializeField] private float characterJumpForce;
     private bool _characterIsRunning;
-    private bool _characterIsAttacking;
+    [SerializeField] private bool _characterIsAttacking;
     private Animator _animator;
     
     //Returns 
@@ -136,6 +136,9 @@ public class Character : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.K))
             {
                 DoAttack(25f,"kick2");    
+            }else if (Input.GetKeyUp(KeyCode.K))
+            {
+                
             }
             
             
@@ -145,21 +148,23 @@ public class Character : MonoBehaviour
         {
             if (!_characterIsRunning && !CheckAnimationBool("isWalking"))
             {
-                try
-                {
-                    _animator.SetTrigger(name);
-                }
-                catch (Exception e)
-                {
-                    Debug.Log("Animation Doesn't exist");
-                }
-
-                _characterIsAttacking = true;
-                
+                StartCoroutine(AttackEnum(name));
             }
             
         }
-    
+
+        IEnumerator AttackEnum(string name)
+        {
+            _characterIsAttacking = true;
+                
+            
+            _animator.SetTrigger(name);
+            
+            
+
+            yield return new WaitForSeconds(0.03f);
+            _characterIsAttacking = false;
+        }
     
     //Play Animations
     private void PlayMoveAnimation(float directionForce)

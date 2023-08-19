@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Chest : MonoBehaviour
@@ -9,23 +10,18 @@ public class Chest : MonoBehaviour
     private Animator _animator;
 
 
-    private void OnCollisionEnter2D(Collision2D other)
+    private void OnTriggerStay2D(Collider2D other)
     {
         var collideObject = other.gameObject;
-        
-            if (collideObject.CompareTag("Player"))
-            {
-                var characterObject = collideObject.GetComponent<Character>();
-                if (characterObject.IsAttacking())
-                {
-                    float damage = other.gameObject.GetComponent<Character>().GetCharacterDamage();
-                    DamageChest(damage);    
-                }
-                
-
-            }
-        
+        Debug.Log("hit");
+        if (collideObject.CompareTag("Player"))
+        {
+            var characterObject = collideObject.GetComponent<Character>();
+            StartCoroutine(AttackChest(characterObject));
+        }
     }
+
+    
 
     private void Start()
     {
@@ -49,5 +45,15 @@ public class Chest : MonoBehaviour
     {
         _animator.enabled = true;
         Destroy(gameObject,5f);
+    }
+
+    IEnumerator AttackChest(Character character)
+    {
+        if (character.IsAttacking())
+        {
+            float damage = character.gameObject.GetComponent<Character>().GetCharacterDamage();
+            DamageChest(damage);
+            yield return new WaitForSeconds(1.5f);
+        }
     }
 }
