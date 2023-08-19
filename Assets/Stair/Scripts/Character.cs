@@ -23,16 +23,22 @@ public class Character : MonoBehaviour
     {
         return characterDamage;
     }
-    private bool CheckAnimationBool(string animationName)
+    public bool CheckAnimationBool(string animationName)
     {
         return _animator.GetBool(animationName);
     }
 
-    private string GetCurrentAnimationName()
+    public string GetCurrentAnimationName()
     {
         var animationName =_animator.GetCurrentAnimatorClipInfo(0)[0].clip.name;
         return animationName;
     }
+
+    public bool IsAttacking()
+    {
+        return _characterIsAttacking;
+    }
+    
     
     //Main
     void Start()
@@ -149,8 +155,9 @@ public class Character : MonoBehaviour
                 }
 
                 _characterIsAttacking = true;
-                characterDamage = damage;
+                
             }
+            
         }
     
     

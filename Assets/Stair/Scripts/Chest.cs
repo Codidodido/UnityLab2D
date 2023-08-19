@@ -11,13 +11,17 @@ public class Chest : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
+        var collideObject = other.gameObject;
         
-        
-            if (other.gameObject.CompareTag("Player"))
+            if (collideObject.CompareTag("Player"))
             {
-                Debug.Log("Character here");
-                float damage = other.gameObject.GetComponent<Character>().GetCharacterDamage();
-                DamageChest(damage);
+                var characterObject = collideObject.GetComponent<Character>();
+                if (characterObject.IsAttacking())
+                {
+                    float damage = other.gameObject.GetComponent<Character>().GetCharacterDamage();
+                    DamageChest(damage);    
+                }
+                
 
             }
         
